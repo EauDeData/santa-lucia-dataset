@@ -16,7 +16,6 @@ def scrap_day(url):
     imfolders = f"{BASE_DB}/{day}/images"
 
     os.makedirs(html_folder, exist_ok=True), os.makedirs(imfolders, exist_ok=True)
-    file_id = uuid.uuid4()
     
     html_text = requests.get(url).text
     soup = BeautifulSoup(html_text, features="html.parser")
@@ -24,9 +23,14 @@ def scrap_day(url):
     esqueles = soup.find_all(class_ = "notice")
     for esquela in esqueles:
 
-        download_img = esquela.find('img')['src'].replace('_medium', '_large')
+        
+        page = esquela.find('img')
+        if page is None: continue
+        download_img = page['src'].replace('_medium', '_large')
         html_base = str(esquela)
         response = requests.get(download_img)
+
+        file_id = uuid.uuid4()
         with open(f"{imfolders}/{file_id}.jpg", 'wb') as f: f.write(response.content)
         with open(f"{html_folder}/{file_id}.html", 'w') as f: f.write(html_base)
     
