@@ -17,8 +17,8 @@ args = parser.parse_args()
 os.makedirs(args.output, exist_ok = True)
 
 dataset = ZippedDataloader(args.file)
-n = 0
-for image in tqdm(dataset,):
+
+for n, image in tqdm(enumerate(dataset,)):
     
     image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     subfolder = f"{args.output}{n}/"

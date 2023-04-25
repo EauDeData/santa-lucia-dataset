@@ -53,7 +53,7 @@ def crop_lines(img, imname = None):
             rho = lines[i][0][0]
             theta = lines[i][0][1]
             a = math.cos(theta)
-            b = math.sin(theta)
+            b = math.sin(theta) + 1e-5
             x0 = a * rho
             y0 = b * rho
 
@@ -62,8 +62,8 @@ def crop_lines(img, imname = None):
                 im1 = img[:y0, :]
                 im2 = img[y0:, :]
 
-                base = imname.split('.')[0]
-                cv2.imwrite(f"{base}-1.png", im1)
-                cv2.imwrite(f"{base}-2.png", im2)
+                
+                cv2.imwrite(imname.replace('.png', '-1bis.png'), im1)
+                cv2.imwrite(imname.replace('.png', '-2bis.png'), im2)
                 return True
     cv2.imwrite(imname, img)
