@@ -12,7 +12,7 @@ def ad_contours_mp(boxes_bbx, contours, hierarchy, thread, num_threads):
         c = contours[n]
         if hierarchy[0][n][-2] == -1: continue
         rect = cv2.boundingRect(c)
-        if rect[2] < 100 or rect[3] < 100: continue
+        if rect[2] < 100 or rect[3] < 100:  continue
         x,y,w,h = rect
 
         boxes_bbx[n] = (x, y, w, h)
