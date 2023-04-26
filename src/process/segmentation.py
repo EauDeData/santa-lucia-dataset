@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import math
 
+import layoutparser as lp
 import multiprocessing as mp
 
 
@@ -67,3 +68,4 @@ def crop_lines(img, imname = None):
                 cv2.imwrite(imname.replace('.png', '-2bis.png'), im2)
                 return True
     cv2.imwrite(imname, img)
+
