@@ -1,7 +1,7 @@
 {
     "felipe_iv": {
         "link": "https://www.boe.es/buscar/gazeta.php?accion=Mas&id_busqueda=_MG0xKy9vQ0Z1VUpsdmRhYlV6cGdpUUxMUW1icDRqdW9ZZEx4RElsWnBHMlpUQmhOV3Jzc3pUdmJSS2dOa0tIQ2RrWm9SdDZ1ZEJBZk8rakxiRVgvMUxCZDlFVHZjaDNiNDJRc2pNZ0poYU9PS2FJanFkbHU0Rmp2RHNtQ1M2REVzUll5SmxrZFh6djZDOEJhRWNwdk1raGN2aVpqYlpkQjJIVk9IUmxsUHovd3E1SWVPMlY1R2R4VVhEVW1HVW5rZ0Q0bkhFRVFVaGdianduTmdNWGxkcTRabUJlQU1KaTc5VjF4Q2hvR1B5dk1LcHFoZ3pZTE9KeG5nYjVLVVVFdw,,-0-138",
-        "neds_next": false
+        "needs_next": false
     },
     "carlos_ii": {
         "link": "https://www.boe.es/buscar/gazeta.php?accion=Mas&id_busqueda=_WmZveFlJT1pIWEw1aFNuYmFiN3JIYmZsQnl3aXM2dFRMaVFNTU9PQWw0R0F5SUZ6NEJJK3duTUkwbUowaDBOQWJSWHFYTG55Tnp6b3RpUUxBaGR3UTZGSkk0YTM4YzNUdlBHK2dHc2pBVFYyMmk5Q0ZJbkpLVlFkVnJ4OGtaaVpkQ3lHV3daZXZmU1pyQ1pUUi9XSWwwcldlWkJ1QUltd2NKVXVTMDJLa2FRbjdQb2sxL0NwNFQvaHAray9LZEV0Ri9idHZlNXJWMXlQOGo0Z0w0Y3YydEdpdE9hLzY2UFh5SFhPZmRpaWltNzQ1SXk4bmc3MFdCVXlDaCtwWHB3WA,,-50-7799",
@@ -41,7 +41,7 @@
     },
 
     "guerra_i": {
-        "link": "https://www.boe.es/buscar/gazeta.php?campo%5B0%5D=ID_HIS&dato%5B0%5D=9&campo%5B1%5D=TIT&dato%5B1%5D=&operador%5B1%5D=and&campo%5B2%5D=ID_RNG&dato%5B2%5D=&operador%5B2%5D=and&campo%5B3%5D=ID_DEM&dato%5B3%5D=&operador%5B3%5D=and&campo%5B4%5D=DOC&dato%5B4%5D=&operador%5B4%5D=and&campo%5B5%5D=TIT&dato%5B5%5D=&operador%5B5%5D=and&campo%5B6%5D=ID_GAZ&dato%5B6%5D=&campo%5B7%5D=NBO&dato%5B7%5D=&operador%5B8%5D=and&campo%5B8%5D=FPU&dato%5B8%5D%5B0%5D=&dato%5B8%5D%5B1%5D=&operador%5B9%5D=and&campo%5B9%5D=FAP&dato%5B9%5D%5B0%5D=&dato%5B9%5D%5B1%5D=&page_hits=2000&sort_field%5B0%5D=FPU&sort_order%5B0%5D=desc&sort_field%5B1%5D=ref&sort_order%5B1%5D=asc&accion=Buscar",
+        "link": "https://www.boe.es/buscar/gazeta.php?campo%5B0%5D=ID_HIS&dato%5B0%5D=10&campo%5B1%5D=TIT&dato%5B1%5D=&operador%5B1%5D=and&campo%5B2%5D=ID_RNG&dato%5B2%5D=&operador%5B2%5D=and&campo%5B3%5D=ID_DEM&dato%5B3%5D=&operador%5B3%5D=and&campo%5B4%5D=DOC&dato%5B4%5D=&operador%5B4%5D=and&campo%5B5%5D=TIT&dato%5B5%5D=&operador%5B5%5D=and&campo%5B6%5D=ID_GAZ&dato%5B6%5D=&campo%5B7%5D=NBO&dato%5B7%5D=&operador%5B8%5D=and&campo%5B8%5D=FPU&dato%5B8%5D%5B0%5D=&dato%5B8%5D%5B1%5D=&operador%5B9%5D=and&campo%5B9%5D=FAP&dato%5B9%5D%5B0%5D=&dato%5B9%5D%5B1%5D=&page_hits=2000&sort_field%5B0%5D=FPU&sort_order%5B0%5D=desc&sort_field%5B1%5D=ref&sort_order%5B1%5D=asc&accion=Buscar",
         "needs_next": true
     },
 
@@ -92,22 +92,27 @@
     },
 
     "regencia_ma_cristina": {
-        "link": "https://www.boe.es/buscar/gazeta.php?campo%5B0%5D=ID_HIS&dato%5B0%5D=21&campo%5B1%5D=TIT&dato%5B1%5D=&operador%5B1%5D=and&campo%5B2%5D=ID_RNG&dato%5B2%5D=&operador%5B2%5D=and&campo%5B3%5D=ID_DEM&dato%5B3%5D=&operador%5B3%5D=and&campo%5B4%5D=DOC&dato%5B4%5D=&operador%5B4%5D=and&campo%5B5%5D=TIT&dato%5B5%5D=&operador%5B5%5D=and&campo%5B6%5D=ID_GAZ&dato%5B6%5D=&campo%5B7%5D=NBO&dato%5B7%5D=&operador%5B8%5D=and&campo%5B8%5D=FPU&dato%5B8%5D%5B0%5D=&dato%5B8%5D%5B1%5D=&operador%5B9%5D=and&campo%5B9%5D=FAP&dato%5B9%5D%5B0%5D=&dato%5B9%5D%5B1%5D=&page_hits=2000&sort_field%5B0%5D=FPU&sort_order%5B0%5D=desc&sort_field%5B1%5D=ref&sort_order%5B1%5D=asc&accion=Buscar"
+        "link": "https://www.boe.es/buscar/gazeta.php?campo%5B0%5D=ID_HIS&dato%5B0%5D=21&campo%5B1%5D=TIT&dato%5B1%5D=&operador%5B1%5D=and&campo%5B2%5D=ID_RNG&dato%5B2%5D=&operador%5B2%5D=and&campo%5B3%5D=ID_DEM&dato%5B3%5D=&operador%5B3%5D=and&campo%5B4%5D=DOC&dato%5B4%5D=&operador%5B4%5D=and&campo%5B5%5D=TIT&dato%5B5%5D=&operador%5B5%5D=and&campo%5B6%5D=ID_GAZ&dato%5B6%5D=&campo%5B7%5D=NBO&dato%5B7%5D=&operador%5B8%5D=and&campo%5B8%5D=FPU&dato%5B8%5D%5B0%5D=&dato%5B8%5D%5B1%5D=&operador%5B9%5D=and&campo%5B9%5D=FAP&dato%5B9%5D%5B0%5D=&dato%5B9%5D%5B1%5D=&page_hits=2000&sort_field%5B0%5D=FPU&sort_order%5B0%5D=desc&sort_field%5B1%5D=ref&sort_order%5B1%5D=asc&accion=Buscar",
+        "needs_next": true
     },
 
     "primo_de_rivera": {
-        "link": "https://www.boe.es/buscar/gazeta.php?campo%5B0%5D=ID_HIS&dato%5B0%5D=22&campo%5B1%5D=TIT&dato%5B1%5D=&operador%5B1%5D=and&campo%5B2%5D=ID_RNG&dato%5B2%5D=&operador%5B2%5D=and&campo%5B3%5D=ID_DEM&dato%5B3%5D=&operador%5B3%5D=and&campo%5B4%5D=DOC&dato%5B4%5D=&operador%5B4%5D=and&campo%5B5%5D=TIT&dato%5B5%5D=&operador%5B5%5D=and&campo%5B6%5D=ID_GAZ&dato%5B6%5D=&campo%5B7%5D=NBO&dato%5B7%5D=&operador%5B8%5D=and&campo%5B8%5D=FPU&dato%5B8%5D%5B0%5D=&dato%5B8%5D%5B1%5D=&operador%5B9%5D=and&campo%5B9%5D=FAP&dato%5B9%5D%5B0%5D=&dato%5B9%5D%5B1%5D=&page_hits=2000&sort_field%5B0%5D=FPU&sort_order%5B0%5D=desc&sort_field%5B1%5D=ref&sort_order%5B1%5D=asc&accion=Buscar"
+        "link": "https://www.boe.es/buscar/gazeta.php?campo%5B0%5D=ID_HIS&dato%5B0%5D=22&campo%5B1%5D=TIT&dato%5B1%5D=&operador%5B1%5D=and&campo%5B2%5D=ID_RNG&dato%5B2%5D=&operador%5B2%5D=and&campo%5B3%5D=ID_DEM&dato%5B3%5D=&operador%5B3%5D=and&campo%5B4%5D=DOC&dato%5B4%5D=&operador%5B4%5D=and&campo%5B5%5D=TIT&dato%5B5%5D=&operador%5B5%5D=and&campo%5B6%5D=ID_GAZ&dato%5B6%5D=&campo%5B7%5D=NBO&dato%5B7%5D=&operador%5B8%5D=and&campo%5B8%5D=FPU&dato%5B8%5D%5B0%5D=&dato%5B8%5D%5B1%5D=&operador%5B9%5D=and&campo%5B9%5D=FAP&dato%5B9%5D%5B0%5D=&dato%5B9%5D%5B1%5D=&page_hits=2000&sort_field%5B0%5D=FPU&sort_order%5B0%5D=desc&sort_field%5B1%5D=ref&sort_order%5B1%5D=asc&accion=Buscar",
+        "needs_next": true
     },
 
     "republica_ii": {
-        "link": "https://www.boe.es/buscar/gazeta.php?campo%5B0%5D=ID_HIS&dato%5B0%5D=23&campo%5B1%5D=TIT&dato%5B1%5D=&operador%5B1%5D=and&campo%5B2%5D=ID_RNG&dato%5B2%5D=&operador%5B2%5D=and&campo%5B3%5D=ID_DEM&dato%5B3%5D=&operador%5B3%5D=and&campo%5B4%5D=DOC&dato%5B4%5D=&operador%5B4%5D=and&campo%5B5%5D=TIT&dato%5B5%5D=&operador%5B5%5D=and&campo%5B6%5D=ID_GAZ&dato%5B6%5D=&campo%5B7%5D=NBO&dato%5B7%5D=&operador%5B8%5D=and&campo%5B8%5D=FPU&dato%5B8%5D%5B0%5D=&dato%5B8%5D%5B1%5D=&operador%5B9%5D=and&campo%5B9%5D=FAP&dato%5B9%5D%5B0%5D=&dato%5B9%5D%5B1%5D=&page_hits=2000&sort_field%5B0%5D=FPU&sort_order%5B0%5D=desc&sort_field%5B1%5D=ref&sort_order%5B1%5D=asc&accion=Buscar"
+        "link": "https://www.boe.es/buscar/gazeta.php?campo%5B0%5D=ID_HIS&dato%5B0%5D=23&campo%5B1%5D=TIT&dato%5B1%5D=&operador%5B1%5D=and&campo%5B2%5D=ID_RNG&dato%5B2%5D=&operador%5B2%5D=and&campo%5B3%5D=ID_DEM&dato%5B3%5D=&operador%5B3%5D=and&campo%5B4%5D=DOC&dato%5B4%5D=&operador%5B4%5D=and&campo%5B5%5D=TIT&dato%5B5%5D=&operador%5B5%5D=and&campo%5B6%5D=ID_GAZ&dato%5B6%5D=&campo%5B7%5D=NBO&dato%5B7%5D=&operador%5B8%5D=and&campo%5B8%5D=FPU&dato%5B8%5D%5B0%5D=&dato%5B8%5D%5B1%5D=&operador%5B9%5D=and&campo%5B9%5D=FAP&dato%5B9%5D%5B0%5D=&dato%5B9%5D%5B1%5D=&page_hits=2000&sort_field%5B0%5D=FPU&sort_order%5B0%5D=desc&sort_field%5B1%5D=ref&sort_order%5B1%5D=asc&accion=Buscar",
+        "needs_next": true
     },
 
     "guerra_ii": {
-        "link": "https://www.boe.es/buscar/gazeta.php?campo%5B0%5D=ID_HIS&dato%5B0%5D=24&campo%5B1%5D=TIT&dato%5B1%5D=&operador%5B1%5D=and&campo%5B2%5D=ID_RNG&dato%5B2%5D=&operador%5B2%5D=and&campo%5B3%5D=ID_DEM&dato%5B3%5D=&operador%5B3%5D=and&campo%5B4%5D=DOC&dato%5B4%5D=&operador%5B4%5D=and&campo%5B5%5D=TIT&dato%5B5%5D=&operador%5B5%5D=and&campo%5B6%5D=ID_GAZ&dato%5B6%5D=&campo%5B7%5D=NBO&dato%5B7%5D=&operador%5B8%5D=and&campo%5B8%5D=FPU&dato%5B8%5D%5B0%5D=&dato%5B8%5D%5B1%5D=&operador%5B9%5D=and&campo%5B9%5D=FAP&dato%5B9%5D%5B0%5D=&dato%5B9%5D%5B1%5D=&page_hits=2000&sort_field%5B0%5D=FPU&sort_order%5B0%5D=desc&sort_field%5B1%5D=ref&sort_order%5B1%5D=asc&accion=Buscar"
+        "link": "https://www.boe.es/buscar/gazeta.php?campo%5B0%5D=ID_HIS&dato%5B0%5D=24&campo%5B1%5D=TIT&dato%5B1%5D=&operador%5B1%5D=and&campo%5B2%5D=ID_RNG&dato%5B2%5D=&operador%5B2%5D=and&campo%5B3%5D=ID_DEM&dato%5B3%5D=&operador%5B3%5D=and&campo%5B4%5D=DOC&dato%5B4%5D=&operador%5B4%5D=and&campo%5B5%5D=TIT&dato%5B5%5D=&operador%5B5%5D=and&campo%5B6%5D=ID_GAZ&dato%5B6%5D=&campo%5B7%5D=NBO&dato%5B7%5D=&operador%5B8%5D=and&campo%5B8%5D=FPU&dato%5B8%5D%5B0%5D=&dato%5B8%5D%5B1%5D=&operador%5B9%5D=and&campo%5B9%5D=FAP&dato%5B9%5D%5B0%5D=&dato%5B9%5D%5B1%5D=&page_hits=2000&sort_field%5B0%5D=FPU&sort_order%5B0%5D=desc&sort_field%5B1%5D=ref&sort_order%5B1%5D=asc&accion=Buscar",
+        "needs_next": true
     },
 
     "franco": {
-        "link": "https://www.boe.es/buscar/gazeta.php?campo%5B0%5D=ID_HIS&dato%5B0%5D=25&campo%5B1%5D=TIT&dato%5B1%5D=&operador%5B1%5D=and&campo%5B2%5D=ID_RNG&dato%5B2%5D=&operador%5B2%5D=and&campo%5B3%5D=ID_DEM&dato%5B3%5D=&operador%5B3%5D=and&campo%5B4%5D=DOC&dato%5B4%5D=&operador%5B4%5D=and&campo%5B5%5D=TIT&dato%5B5%5D=&operador%5B5%5D=and&campo%5B6%5D=ID_GAZ&dato%5B6%5D=&campo%5B7%5D=NBO&dato%5B7%5D=&operador%5B8%5D=and&campo%5B8%5D=FPU&dato%5B8%5D%5B0%5D=&dato%5B8%5D%5B1%5D=&operador%5B9%5D=and&campo%5B9%5D=FAP&dato%5B9%5D%5B0%5D=&dato%5B9%5D%5B1%5D=&page_hits=2000&sort_field%5B0%5D=FPU&sort_order%5B0%5D=desc&sort_field%5B1%5D=ref&sort_order%5B1%5D=asc&accion=Buscar"
+        "link": "https://www.boe.es/buscar/gazeta.php?campo%5B0%5D=ID_HIS&dato%5B0%5D=25&campo%5B1%5D=TIT&dato%5B1%5D=&operador%5B1%5D=and&campo%5B2%5D=ID_RNG&dato%5B2%5D=&operador%5B2%5D=and&campo%5B3%5D=ID_DEM&dato%5B3%5D=&operador%5B3%5D=and&campo%5B4%5D=DOC&dato%5B4%5D=&operador%5B4%5D=and&campo%5B5%5D=TIT&dato%5B5%5D=&operador%5B5%5D=and&campo%5B6%5D=ID_GAZ&dato%5B6%5D=&campo%5B7%5D=NBO&dato%5B7%5D=&operador%5B8%5D=and&campo%5B8%5D=FPU&dato%5B8%5D%5B0%5D=&dato%5B8%5D%5B1%5D=&operador%5B9%5D=and&campo%5B9%5D=FAP&dato%5B9%5D%5B0%5D=&dato%5B9%5D%5B1%5D=&page_hits=2000&sort_field%5B0%5D=FPU&sort_order%5B0%5D=desc&sort_field%5B1%5D=ref&sort_order%5B1%5D=asc&accion=Buscar",
+        "needs_next": true
     }
 }
