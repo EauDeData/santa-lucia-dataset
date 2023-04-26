@@ -85,7 +85,7 @@ def take_care(periods, thread_id, n_threads = 8):
         scrap_period(periods[idx])
 
 periods = list(LINKS.keys())
-n_jobs = 15
+n_jobs = 8
 jobs = [mp.Process(target = take_care, args = (periods, i, n_jobs)) for i in range(n_jobs)]
 [j.start() for j in jobs]
 [u.join() for u in jobs]

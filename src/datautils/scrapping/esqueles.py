@@ -23,17 +23,18 @@ def scrap_day(url):
     esqueles = soup.find_all(class_ = "notice")
     for esquela in esqueles:
 
-        
-        page = esquela.find('img')
-        if page is None: continue
-        download_img = page['src'].replace('_medium', '_large')
-        html_base = str(esquela)
-        response = requests.get(download_img)
+        try:
+            page = esquela.find('img')
+            if page is None: continue
+            download_img = page['src'].replace('_medium', '_large')
+            html_base = str(esquela)
+            response = requests.get(download_img)
 
-        file_id = uuid.uuid4()
-        with open(f"{imfolders}/{file_id}.jpg", 'wb') as f: f.write(response.content)
-        with open(f"{html_folder}/{file_id}.html", 'w') as f: f.write(html_base)
-    
+            file_id = uuid.uuid4()
+            with open(f"{imfolders}/{file_id}.jpg", 'wb') as f: f.write(response.content)
+            with open(f"{html_folder}/{file_id}.html", 'w') as f: f.write(html_base)
+        except Exception as e: print(e)
+        
     prev = soup.find(class_ = "prev").find("a")['href']
     return BASE_URL + prev, day
 
