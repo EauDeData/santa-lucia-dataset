@@ -69,3 +69,11 @@ def crop_lines(img, imname = None):
                 return True
     cv2.imwrite(imname, img)
 
+LPMODEL = model = lp.models.Detectron2LayoutModel(
+            config_path ='lp://HJDataset/faster_rcnn_R_50_FPN_3x/config', # In model catalog
+            label_map   = {1:"Page Frame", 2:"Row", 3:"Title Region", 4:"Text Region", 5:"Title", 6:"Subtitle", 7:"Other"}, # In model`label_map`
+            extra_config=["MODEL.ROI_HEADS.SCORE_THRESH_TEST", 0.8] # Optional
+        )
+
+def lp_detect(image, model = LPMODEL):
+    return model.detect(image)
