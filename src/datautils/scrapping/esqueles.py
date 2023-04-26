@@ -35,9 +35,10 @@ def scrap_day(url):
         with open(f"{html_folder}/{file_id}.html", 'w') as f: f.write(html_base)
     
     prev = soup.find(class_ = "prev").find("a")['href']
-    return BASE_URL + prev
+    return BASE_URL + prev, day
 
 currently = INITIAL_URL
 while True: 
     # TODO: Possar condició de parada com déu mana
-    currently = scrap_day(currently)
+    currently, day = scrap_day(currently)
+    print(f"\tPeople dying in: {day}...\t", end = '\r')
