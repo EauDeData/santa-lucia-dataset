@@ -19,11 +19,13 @@ def scrap_hard(url, folder):
     imfolders = f"{folder}/images"
     os.makedirs(html_folder, exist_ok=True), os.makedirs(imfolders, exist_ok=True)
 
-    html_text = requests.get(url).text
-    soup = BeautifulSoup(html_text, features="html.parser")
-
-    next_ = soup.find(class_ = "pagSig")
+    next_ = 1
+    newurl = url
     while not next_ is None:
+
+        html_text = requests.get(newurl).text
+        soup = BeautifulSoup(html_text, features="html.parser")
+        next_ = soup.find(class_ = "pagSig")
 
         items = soup.find_all(class_ = "resultado-busqueda")
 
@@ -41,10 +43,8 @@ def scrap_hard(url, folder):
 
         
         ### NEXT PAGE ###
-        newurl = BASEQUERY + next_.parent['href']
-        html_text = requests.get(newurl).text
-        soup = BeautifulSoup(html_text, features="html.parser")
-        next_ = soup.find(class_ = "pagSig")
+        if not next_ is None: newurl = BASEQUERY + next_.parent['href']
+
 
 def scrap_easy(url, folder):
     html_folder = f"{folder}/htmls"
