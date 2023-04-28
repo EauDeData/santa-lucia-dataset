@@ -11,21 +11,19 @@ from tqdm import tqdm
 LINKS = json.load(open('gazeta.json', 'r'))
 BASELINK = 'https://www.boe.es'
 BASEQUERY = 'https://www.boe.es/buscar/'
-BASE = './BOE'
+BASE = '/data1tbsdd/BOE'
 
 def scrap_hard(url, folder):
-    
+        
     html_folder = f"{folder}/htmls"
     imfolders = f"{folder}/images"
     os.makedirs(html_folder, exist_ok=True), os.makedirs(imfolders, exist_ok=True)
 
-    next_ = 1
-    newurl = url
-    while not next_ is None:
+    html_text = requests.get(url).text
+    soup = BeautifulSoup(html_text, features="html.parser")
 
-        html_text = requests.get(newurl).text
-        soup = BeautifulSoup(html_text, features="html.parser")
-        next_ = soup.find(class_ = "pagSig")
+    next_ = soup.find(class_ = "pagSig")
+    while not next_ is None:
 
         items = soup.find_all(class_ = "resultado-busqueda")
 
@@ -43,9 +41,26 @@ def scrap_hard(url, folder):
 
         
         ### NEXT PAGE ###
-        if not next_ is None: newurl = BASEQUERY + next_.parent['href']
+        newurl = BASEQUERY + next_.parent['href']
+        html_text = requests.get(newurl).text
+        soup = BeautifulSoup(html_text, features="html.parser")
+        next_ = soup.find(class_ = "pagSig")
 
+        items = soup.find_all(class_ = "resultado-busqueda")
 
+    for item in tqdm(items):
+
+        file_id = uuid.uuid4()            
+        pdfurl = item.find(class_ = "puntoPDF2")
+        if pdfurl is None: continue
+
+        pdfurl = pdfurl.find("a")
+        response = requests.get(BASELINK +pdfurl['href'])
+
+        with open(f"{imfolders}/{file_id}.pdf", 'wb') as f: f.write(response.content)
+        with open(f"{html_folder}/{file_id}.html", 'w') as f: f.write(str(item))
+
+    
 def scrap_easy(url, folder):
     html_folder = f"{folder}/htmls"
     imfolders = f"{folder}/images"
