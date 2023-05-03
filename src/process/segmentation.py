@@ -69,11 +69,21 @@ def crop_lines(img, imname = None):
                 return True
     cv2.imwrite(imname, img)
 
-LPMODEL = model = lp.models.Detectron2LayoutModel(
-            config_path ='lp://HJDataset/faster_rcnn_R_50_FPN_3x/config', # In model catalog
-            label_map   = {1:"Page Frame", 2:"Row", 3:"Title Region", 4:"Text Region", 5:"Title", 6:"Subtitle", 7:"Other"}, # In model`label_map`
-            extra_config=["MODEL.ROI_HEADS.SCORE_THRESH_TEST", 0.8] # Optional
-        )
 
-def lp_detect(image, model = LPMODEL):
+
+MODELS = {
+    "navigator": {
+        "model": 'lp://NewspaperNavigator/faster_rcnn_R_50_FPN_3x/config',
+        "labels": {0: "Photograph", 1: "Illustration", 2: "Map", 3: "Comics/Cartoon", 4: "Editorial Cartoon", 5: "Headline", 6: "Advertisement"}
+    },
+    "hjdataset": {
+        "model": "lp://HJDataset/faster_rcnn_R_50_FPN_3x/config",
+        "labels": {1:"Page Frame", 2:"Row", 3:"Title Region", 4:"Text Region", 5:"Title", 6:"Subtitle", 7:"Other"}
+    },
+    "prima": {
+        "model": "lp://PrimaLayout/mask_rcnn_R_50_FPN_3x/config",
+        "labels": {1:"TextRegion", 2:"ImageRegion", 3:"TableRegion", 4:"MathsRegion", 5:"SeparatorRegion", 6:"OtherRegion"}
+    }
+}   
+def lp_detect(image, model = None):
     return model.detect(image)

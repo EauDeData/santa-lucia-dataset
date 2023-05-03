@@ -46,8 +46,7 @@ def scrap_hard(url, folder):
         soup = BeautifulSoup(html_text, features="html.parser")
         next_ = soup.find(class_ = "pagSig")
 
-        items = soup.find_all(class_ = "resultado-busqueda")
-
+    items = soup.find_all(class_ = "resultado-busqueda")
     for item in tqdm(items):
 
         file_id = uuid.uuid4()            

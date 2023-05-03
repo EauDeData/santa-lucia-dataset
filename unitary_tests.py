@@ -23,11 +23,12 @@ os.makedirs(args.output, exist_ok = True)
 dataset = ZippedDataloader(args.file)
 
 for n, image in tqdm(enumerate(dataset,)):
-    image = image.transpose(1, 0, 2)
-    print(image.shape)
-    layout = lp_detect(image)
-    print(layout[0])
-    vis = np.array(lp.visualization.draw_box(image, layout)).transpose(1, 0, 2)
+    #image = image.transpose(1, 0, 2)
+    layout = lp_detect(image[0])
+    for item in layout:
+        print(item.block)
+        print(item.type, item.coordinates, item.score)
+    vis = np.array(lp.visualization.draw_box(image[0], layout)) #.transpose(1, 0, 2)
     plt.imshow(vis)
     plt.show()
-    break
+

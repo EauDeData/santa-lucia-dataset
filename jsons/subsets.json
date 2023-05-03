@@ -1,0 +1,21 @@
+{
+    "subsets": [
+        
+            {
+                "name": "gazeta-modern",
+                "subfolders": [
+                    "guerra_ii",
+                    "franco",
+                    "primo_de_rivera",
+                    "republica_ii",
+                    "revolucion",
+                    "alfonso_xiii",
+                    "alfonso_xii",
+                    "republica_i",
+                    "amadeo_i"
+                ]
+            }
+        
+        ]
+
+}
