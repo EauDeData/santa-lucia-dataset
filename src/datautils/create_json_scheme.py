@@ -10,6 +10,7 @@ from PIL import Image
 import cv2
 from detectron2.data.transforms import ResizeShortestEdge
 import numpy as np
+import multiprocessing as mp
 
 from src.process.segmentation import lp_detect, MODELS
 from src.datautils.dataloader import read_img
@@ -32,19 +33,21 @@ def process_folder(folder, out_base, LPMODEL, ocr = True,):
 
             fname = os.path.join(root, file)
             images = read_img(fname)
+            manager = mp.Manager()
             json_gt = {
                     "file": file, 
                     "path": fname,
                     "pages": {}
                     }
-            
             for num, image in enumerate(images):
 
                 json_gt["pages"][num] = []
                 detection = lp_detect(image, LPMODEL)
 
+                parameters_ocr = []
+                returned = manager.list([None] * len(detection))
 
-                for item in detection:
+                for mp_num, item in enumerate(detection):
                     
 
                     json_gt["pages"][num].append(
@@ -52,13 +55,23 @@ def process_folder(folder, out_base, LPMODEL, ocr = True,):
                     )
                     if ocr:
                         
-                        x,y,w,h = json_gt["pages"][num][-1]["bbox"]
-                        try:
-                            input_image = Image.fromarray(image[y:max(h-1,0), x:max(w-1, 0)])
-                            json_gt["pages"][num][-1]["ocr"] = tesserocr.image_to_text(input_image, lang = 'spa') # pytesseract.image_to_data(image[y:y+h, x:x+w], lang = 'spa', nice = 10, output_type=Output.DICT)
-                        except ValueError:  continue # This is just a too small region, don't worry I'm an engineer
-            json.dump(json_gt, open(outname, 'w'))
+                        parameters_ocr.append((json_gt["pages"][num][-1]["bbox"], image, returned, mp_num))
+                
+            with mp.Pool(8) as p: p.starmap(_ocr_paralel, parameters_ocr)
+            if ocr:
+                for mp_num, item in enumerate(detection):
+                    element = returned[mp_num]
+                    if element is not None: json_gt["pages"][num][mp_num]['ocr'] = element
+            json.dump(dict(json_gt), open(outname, 'w')) # TODO: Ensure it arrives here on join
     del LPMODEL
+
+def _ocr_paralel(box, image, list_mp, num):
+    x,y,w,h = box
+    try:
+        input_image = Image.fromarray(image[y:max(h-1,0), x:max(w-1, 0)])
+        list_mp[num] = tesserocr.image_to_text(input_image, lang = 'spa') # pytesseract.image_to_data(image[y:y+h, x:x+w], lang = 'spa', nice = 10, output_type=Output.DICT)
+
+    except ValueError:  pass # This is just a too small region, don't worry I'm an engineer
 
 def rescale(image, x, y, w, h, model):
     longest = max(image.shape)

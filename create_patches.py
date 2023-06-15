@@ -36,4 +36,8 @@ if __name__ == '__main__':
 
 
     folders = [(os.path.join(args.where_data, f), args.outdir.format(f), LPMODEL) for f in subset["subfolders"]]
-    with mp.Pool(args.threads) as p: p.starmap(process_folder, folders)
+    if args.threads:
+        with mp.Pool(args.threads) as p: p.starmap(process_folder, folders)
+    else:
+        for folder in folders:
+            process_folder(*folder)
