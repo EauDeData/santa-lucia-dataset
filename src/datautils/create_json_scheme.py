@@ -57,11 +57,11 @@ def process_folder(folder, out_base, LPMODEL, ocr = True,):
                         
                         parameters_ocr.append((json_gt["pages"][num][-1]["bbox"], image, returned, mp_num))
                 
-            with mp.Pool(8) as p: p.starmap(_ocr_paralel, parameters_ocr)
-            if ocr:
-                for mp_num, item in enumerate(detection):
-                    element = returned[mp_num]
-                    if element is not None: json_gt["pages"][num][mp_num]['ocr'] = element
+                with mp.Pool(8) as p: p.starmap(_ocr_paralel, parameters_ocr)
+                if ocr:
+                    for mp_num, item in enumerate(detection):
+                        element = returned[mp_num]
+                        if element is not None: json_gt["pages"][num][mp_num]['ocr'] = element
             json.dump(dict(json_gt), open(outname, 'w')) # TODO: Ensure it arrives here on join
     del LPMODEL
 
