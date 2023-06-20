@@ -5,7 +5,7 @@ import re
 import os
 
 BASE_URL = "https://enmemoria.lavanguardia.com"
-INITIAL_URL = f"{BASE_URL}/esquelas?_fstatus=browse;date_limit=0;hdate=2023-04-24;type=all_memorial"
+INITIAL_URL = f"{BASE_URL}/esquelas?_fstatus=browse;date_limit=0;hdate=2023-06-18;type=all_memorial"
 DATE_REGEX = r"\d{4}-\d{2}-\d{2}"
 BASE_DB = "data"
 

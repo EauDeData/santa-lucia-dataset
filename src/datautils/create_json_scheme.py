@@ -57,7 +57,7 @@ def process_folder(folder, out_base, LPMODEL, ocr = True,):
                         
                         parameters_ocr.append((json_gt["pages"][num][-1]["bbox"], image, returned, mp_num))
                 
-                with mp.Pool(8) as p: p.starmap(_ocr_paralel, parameters_ocr)
+                with mp.Pool(3) as p: p.starmap(_ocr_paralel, parameters_ocr)
                 if ocr:
                     for mp_num, element in enumerate(returned):
                         if element is not None: json_gt["pages"][num][mp_num]['ocr'] = element
