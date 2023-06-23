@@ -7,7 +7,7 @@ import zipfile
 import warnings
 def read_img(path):
     img = pdf2image.convert_from_path(path.strip())
-    return [np.array(img[i]) for i in range(len(img))]
+    return {i: np.array(img[i]) for i in range(len(img))}
 
 class ZippedDataloader:
     def __init__(self, path_to_zip, temporal_folder = './.tmp/') -> None:

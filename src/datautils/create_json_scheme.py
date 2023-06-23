@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from pypdf import PdfReader
 import re
 from multiprocessing import Manager
+import numpy as np
 
 from src.process.segmentation import lp_detect, MODELS
 from src.datautils.dataloader import read_img
@@ -71,6 +72,29 @@ def extract_text_with_position(page_layout, page, max_x, max_y, x, y, x2, y2):
                             text += char
     return post_process(text)
 
+def save_file(fname):
+    files = read_img(fname)
+    pre, _ = os.path.splitext(files)
+    np.savez_compressed(pre + '.npz', files)
+    return True
+
+def just_save_numpy(folder, mp_general = 6):
+    file_extensions = ['.pdf',]
+    print(f"Function triggered with origin {folder}")
+    files = []
+
+    for root, _, files in os.walk(folder):
+        for file in tqdm(files, desc=f"Processing {folder}..."):
+            if not (os.path.splitext(file)[1].lower() in file_extensions): continue
+
+            fname = os.path.join(root, file)
+            files.append(fname)
+
+    with ProcessPoolExecutor(max_workers=mp_general) as executor:
+        tasks = {executor.submit(save_file, img): file for img in files}
+        for future in tqdm(concurrent.futures.as_completed(tasks)):
+            _ = future.result()
+            
 
 
 def paralel_extract_wrapper(args):
