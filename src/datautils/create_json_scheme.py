@@ -2,25 +2,32 @@ import os
 import json
 from tqdm import tqdm
 import layoutparser as lp
-import pytesseract
 import tesserocr
-from pytesseract import Output
-from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 from PIL import Image
 import cv2
-from detectron2.data.transforms import ResizeShortestEdge
-import numpy as np
 import multiprocessing as mp
+import concurrent.futures
+from concurrent.futures import ProcessPoolExecutor
 
 from src.process.segmentation import lp_detect, MODELS
 from src.datautils.dataloader import read_img
 
 BS = 10
-def process_folder(folder, out_base, LPMODEL, ocr = True,):
+
+
+
+def preprocess(image):
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    image = cv2.equalizeHist(image)
+    image = cv2.GaussianBlur(image, (5, 5), 1)
+    return image
+
+def ocr_img(img):
+    return tesserocr.image_to_text(Image.fromarray(img), lang = 'spa')
+
+def process_folder(folder, out_base, LPMODEL, mp_ocr = 0):
     file_extensions = ['.pdf',]
     print(f"Function triggered with origin {folder} and destination {out_base}")
-    TR = ResizeShortestEdge([LPMODEL.cfg.INPUT.MIN_SIZE_TEST, LPMODEL.cfg.INPUT.MIN_SIZE_TEST], LPMODEL.cfg.INPUT.MAX_SIZE_TEST)
-
 
     out = out_base
     os.makedirs(out, exist_ok=True)
@@ -44,8 +51,9 @@ def process_folder(folder, out_base, LPMODEL, ocr = True,):
                 json_gt["pages"][num] = []
                 detection = lp_detect(image, LPMODEL)
 
-                parameters_ocr = []
-                returned = manager.list([None] * len(detection))
+                returned = manager.list([None] * len(detection)) if mp_ocr else [None] * len(detection)
+                image = preprocess(image)
+                if mp_ocr: crops = []
 
                 for mp_num, item in enumerate(detection):
                     
@@ -53,24 +61,27 @@ def process_folder(folder, out_base, LPMODEL, ocr = True,):
                     json_gt["pages"][num].append(
                         {"type": item.type, "bbox": [int(x) for x in item.coordinates], 'conf': item.score}
                     )
-                    if ocr:
-                        
-                        parameters_ocr.append((json_gt["pages"][num][-1]["bbox"], image, returned, mp_num))
+                    x,y,w,h = [int(x) for x in item.coordinates]
+                    crop = image[y:max(h-1,0), x:max(w-1, 0)]
+
+                    if not mp_ocr:
+                        text =   tesserocr.image_to_text(crop, lang = 'spa')  #OCR.readtext(crop)
+                        returned[num] = text
+                    else: crops.append(crop)
                 
-                with mp.Pool(3) as p: p.starmap(_ocr_paralel, parameters_ocr)
-                if ocr:
-                    for mp_num, element in enumerate(returned):
-                        if element is not None: json_gt["pages"][num][mp_num]['ocr'] = element
-            json.dump(dict(json_gt), open(outname, 'w')) # TODO: Ensure it arrives here on join
+                else:
+                    with ProcessPoolExecutor(max_workers=mp_ocr) as executor:
+                        tasks = {executor.submit(ocr_img, img): n for n, img in enumerate(crops)}
+                        for future in concurrent.futures.as_completed(tasks):
+                            crop_number = tasks[future]
+                            returned[crop_number] = future.result()
+
+                for mp_num, element in enumerate(returned):
+                    if element is not None: json_gt["pages"][num][mp_num]['ocr'] = element
+            
+            json.dump(dict(json_gt), open(outname, 'w')) # TODO: Ensure it arrives here on join            
     del LPMODEL
 
-def _ocr_paralel(box, image, list_mp, num):
-    x,y,w,h = box
-    try:
-        input_image = Image.fromarray(image[y:max(h-1,0), x:max(w-1, 0)])
-        list_mp[num] = tesserocr.image_to_text(input_image, lang = 'spa') # pytesseract.image_to_data(image[y:y+h, x:x+w], lang = 'spa', nice = 10, output_type=Output.DICT)
-
-    except ValueError:  pass # This is just a too small region, don't worry I'm an engineer
 
 def rescale(image, x, y, w, h, model):
     longest = max(image.shape)
