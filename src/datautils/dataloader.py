@@ -5,9 +5,9 @@ import numpy as np
 import cv2
 import zipfile
 import warnings
-def read_img(path):
+def read_img(path, how = int):
     img = pdf2image.convert_from_path(path.strip())
-    return {i: np.array(img[i]) for i in range(len(img))}
+    return {how(i): np.array(img[i]) for i in range(len(img))}
 
 class ZippedDataloader:
     def __init__(self, path_to_zip, temporal_folder = './.tmp/') -> None:

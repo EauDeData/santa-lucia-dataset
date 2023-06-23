@@ -5,7 +5,6 @@ import layoutparser as lp
 import tesserocr
 from PIL import Image
 import cv2
-import multiprocessing as mp
 import concurrent.futures
 from concurrent.futures import ProcessPoolExecutor
 import pdfminer
@@ -15,6 +14,7 @@ from pypdf import PdfReader
 import re
 from multiprocessing import Manager
 import numpy as np
+import multiprocessing as mp
 
 from src.process.segmentation import lp_detect, MODELS
 from src.datautils.dataloader import read_img
@@ -73,17 +73,22 @@ def extract_text_with_position(page_layout, page, max_x, max_y, x, y, x2, y2):
     return post_process(text)
 
 def save_file(fname):
-    files = read_img(fname)
-    pre, _ = os.path.splitext(files)
+    files = read_img(fname, how = str)
+    pre, _ = os.path.splitext(fname)
     pre = pre.replace('images', 'numpy')
-    os.makedirs(os.path.join(pre.split('/')[:-1]), exist_ok=True)
-    np.savez_compressed(pre + '.npz', files)
+    np.savez_compressed(pre + '.npz', **files)
     return True
+
+def mp_manager_saver(files, t_number, n_threads):
+    for img_idx in tqdm(range(t_number, len(files), n_threads)):
+        save_file(files[img_idx])
 
 def just_save_numpy(folder, mp_general = 6):
     file_extensions = ['.pdf',]
     print(f"Function triggered with origin {folder}")
     allfiles = []
+    out = os.path.join(folder, 'numpy/')
+    os.makedirs(out, exist_ok=True)
 
     for root, _, files in os.walk(folder):
         for file in files:
@@ -95,10 +100,12 @@ def just_save_numpy(folder, mp_general = 6):
             print(f"Appending file number... {len(allfiles)}\t\t", end = '\r')
     print('\nAll files added, launching task!\n')
 
-    with ProcessPoolExecutor(max_workers=mp_general) as executor:
-        tasks = {executor.submit(save_file, img): file for img in allfiles}
-        for future in tqdm(concurrent.futures.as_completed(tasks), desc='Saving Files!'):
-            task_good = future.result()
+    common = Manager()
+    list_files = common.list(allfiles)
+    process = [mp.Process(target=mp_manager_saver, args=(list_files, t, mp_general)) for t in range(mp_general)]
+    [p.start() for p in process]
+    [p.join() for p in process]
+
 
             
 
