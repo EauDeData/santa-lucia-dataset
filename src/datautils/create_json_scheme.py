@@ -75,27 +75,32 @@ def extract_text_with_position(page_layout, page, max_x, max_y, x, y, x2, y2):
 def save_file(fname):
     files = read_img(fname)
     pre, _ = os.path.splitext(files)
+    pre = pre.replace('images', 'numpy')
+    os.makedirs(os.path.join(pre.split('/')[:-1]), exist_ok=True)
     np.savez_compressed(pre + '.npz', files)
     return True
 
 def just_save_numpy(folder, mp_general = 6):
     file_extensions = ['.pdf',]
     print(f"Function triggered with origin {folder}")
-    files = []
+    allfiles = []
 
     for root, _, files in os.walk(folder):
-        for file in tqdm(files, desc=f"Processing {folder}..."):
+        for file in files:
             if not (os.path.splitext(file)[1].lower() in file_extensions): continue
 
             fname = os.path.join(root, file)
-            files.append(fname)
+            allfiles.append(fname)
+            
+            print(f"Appending file number... {len(allfiles)}\t\t", end = '\r')
+    print('\nAll files added, launching task!\n')
 
     with ProcessPoolExecutor(max_workers=mp_general) as executor:
-        tasks = {executor.submit(save_file, img): file for img in files}
-        for future in tqdm(concurrent.futures.as_completed(tasks)):
-            _ = future.result()
-            
+        tasks = {executor.submit(save_file, img): file for img in allfiles}
+        for future in tqdm(concurrent.futures.as_completed(tasks), desc='Saving Files!'):
+            task_good = future.result()
 
+            
 
 def paralel_extract_wrapper(args):
     return extract_text_with_position(*args)
