@@ -21,6 +21,30 @@
                     "guerra_ii",
                     "franco"
                 ]
+            },
+            {
+                "name": "guerra_ii",
+                "subfolders": [
+                  "guerra_ii"
+                ]
+              },
+              {
+                "name": "franco",
+                "subfolders": [
+                  "franco"
+                ]
+              },
+              {
+                "name": "primo_de_rivera",
+                "subfolders": [
+                  "primo_de_rivera"
+                ]
+              },
+              {
+                "name": "republica_ii",
+                "subfolders": [
+                  "republica_ii"
+                ]
             }
         
         ]
