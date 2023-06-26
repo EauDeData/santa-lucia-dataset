@@ -73,9 +73,10 @@ def extract_text_with_position(page_layout, page, max_x, max_y, x, y, x2, y2):
     return post_process(text)
 
 def save_file(fname):
-    files = read_img(fname, how = str)
     pre, _ = os.path.splitext(fname)
     pre = pre.replace('images', 'numpy')
+    if os.path.exists(pre + '.npz'): return True
+    files = read_img(fname, how = str)
     np.savez_compressed(pre + '.npz', **files)
     return True
 
