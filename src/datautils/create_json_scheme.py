@@ -42,45 +42,54 @@ def post_process(text):
     spplited = re.sub(r'[^\w\s]|_', ' ', text).split()
     newtext = []
     skip = False
-    for n, word in enumerate(spplited[:-1]):
-        if skip:
-            skip = False
-            continue
-
-        comb = word + spplited[n+1]
-        if  (comb.lower() in VOCAB) and (len(word) >= 2) and len(comb) > 4:
-            
+    length = len(spplited)
+    i = 0
+    while i < length - 1:
+        word = spplited[i]
+        next_word = spplited[i+1]
+        comb = word + next_word
+        if comb.lower() in VOCAB and len(word) >= 2 and len(comb) > 4:
             newtext.append(comb)
             skip = True
-        else: 
+        else:
             newtext.append(word)
+        i += 1
+        if skip:
+            i += 1
+            skip = False
+
+    if i == length - 1:  # Add the last word if not skipped
+        newtext.append(spplited[-1])
+
     return " ".join(newtext)
 
-def extract_text_with_position(page_layout, page, max_x, max_y, x, y, x2, y2, returned = None, idx = None):
+def extract_text_with_position(page_layout, page, max_x, max_y, x, y, x2, y2, returned=None, idx=None):
     text = ""
 
     for element in list(extract_pages(page_layout))[page]:
         if isinstance(element, pdfminer.layout.LTTextBoxHorizontal):
             for text_line in element:
                 x_pixels, y_pixels, _, _ = text_line.bbox
-                arr_pixel_x = (x_pixels /  max_x) 
-                arr_pixel_y = 1- (y_pixels / max_y)
+                arr_pixel_x = (x_pixels / max_x)
+                arr_pixel_y = 1 - (y_pixels / max_y)
 
-                if (arr_pixel_x > x2 or arr_pixel_y > y2): continue
+                if arr_pixel_x > x2 or arr_pixel_y > y2:
+                    continue
+
                 for character in text_line:
                     if isinstance(character, pdfminer.layout.LTChar):
                         x_pixels, y_pixels, _, _ = character.bbox
-                        
-                        arr_pixel_x = (x_pixels /  max_x) 
-                        arr_pixel_y = 1- (y_pixels / max_y)
 
-                        if x <= (arr_pixel_x) <= x2 and y <= (arr_pixel_y) <= y2:
+                        arr_pixel_x = (x_pixels / max_x)
+                        arr_pixel_y = 1 - (y_pixels / max_y)
+
+                        if x <= arr_pixel_x <= x2 and y <= arr_pixel_y <= y2:
                             char = character.get_text()
                             text += char
     t = post_process(text)
     if returned is not None:
         returned[idx] = t
-    
+
     return t
 
 def save_file(fname):
