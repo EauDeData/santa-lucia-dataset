@@ -44,12 +44,8 @@ if __name__ == '__main__':
     def _get_folder_args(idx, folders = folders): 
         return process_folder(*folders[idx])
     if args.threads:
-        with ProcessPoolExecutor(max_workers=args.threads) as executor_folders:
-            tasks = {executor_folders.submit(_get_folder_args, n): n for n, _ in enumerate(folders)}
-            for future in concurrent.futures.as_completed(tasks):
+        with mp.Pool(args.threads) as p: p.starmap(process_folder, folders)
 
-                wait = future.result()
-                print(tasks[future], 'completed', wait)
     else:
         for folder in folders:
             process_folder(*folder)
