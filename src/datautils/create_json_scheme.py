@@ -115,8 +115,8 @@ def just_save_numpy(folder, mp_general = 6):
 def paralel_extract_wrapper(args):
     return extract_text_with_position(*args)
 
-def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 10):
-    file_extensions = ['.pdf',]
+def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 10, file_extensions = ['.pdf',]):
+    
     print(f"Function triggered with origin {folder} and destination {out_base}")
 
     out = out_base
@@ -131,7 +131,8 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 1
             if os.path.exists(outname): continue
 
             fname = os.path.join(root, file)
-            images = read_img(fname)
+            images = np.load(fname.replace('images', 'numpy').replace('.pdf', '.npz'))
+            images = {int(x): images[x] for x in images}
             manager = mp.Manager()
             json_gt = {
                     "file": file, 
