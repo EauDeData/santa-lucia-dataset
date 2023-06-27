@@ -17,6 +17,7 @@ import numpy as np
 import torch
 import multiprocessing as mp
 import easyocr
+import fitz
 
 from src.process.segmentation import lp_detect, MODELS
 from src.datautils.dataloader import read_img
@@ -63,7 +64,7 @@ def post_process(text):
 
     return " ".join(newtext)
 
-def extract_text_with_position(page_layout, page, max_x, max_y, x, y, x2, y2, returned=None, idx=None):
+def extract_text_with_position_old(page_layout, page, max_x, max_y, x, y, x2, y2, returned=None, idx=None):
     text = ""
 
     for element in list(extract_pages(page_layout))[page]:
@@ -91,6 +92,16 @@ def extract_text_with_position(page_layout, page, max_x, max_y, x, y, x2, y2, re
         returned[idx] = t
 
     return t
+
+def extract_text_with_position(fname, page_n, max_x, max_y, x, y, x2, y2, returned, idx):
+    for n, page in enumerate(fitz.open(fname)):
+
+        if (n==page_n): 
+            text = page.get_textbox([max_x * x, max_y * y, max_x * x2, max_y * y2])
+            text = post_process(text.replace('-', ''))
+            if returned is not None: returned[idx] = text
+            return text
+
 
 def save_file(fname):
     try:
@@ -128,9 +139,6 @@ def just_save_numpy(folder, mp_general = 6):
     process = [mp.Process(target=mp_manager_saver, args=(list_files, t, mp_general)) for t in range(mp_general)]
     [p.start() for p in process]
     [p.join() for p in process]
-
-
-            
 
 def paralel_extract_wrapper(args):
     return extract_text_with_position(*args)
@@ -174,9 +182,9 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, ocr_device
                     "path": fname,
                     "pages": {}
                     }
-            pdfhandler = PdfReader(fname).pages
+            doc =  fitz.open(fname)
 
-            for num, image in enumerate(images):
+            for num, (image, page) in enumerate(zip(images, doc)):
 
                 json_gt["pages"][num] = []
                 with torch.no_grad():
@@ -187,7 +195,8 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, ocr_device
                     m = Manager()
                     returned = m.list(returned)
 
-                _, _, max_x, max_y = pdfhandler[num].mediabox
+                max_x, max_y = page.mediabox_size
+
                 
                 if mp_ocr: crops = []
                 
@@ -198,17 +207,16 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, ocr_device
                         {"type": item.type, "bbox": [int(x) for x in item.coordinates], 'conf': item.score}
                     )
                     x,y,w,h = [int(x) for x in item.coordinates]
-
                     x, y = x-margin, y - margin  
                     w,h = w+margin, h+margin
                     if not mp_ocr:
                         # text =   tesserocr.image_to_text(crop, lang = 'spa')  #OCR.readtext(crop)
-                        text = extract_text_with_position(fname, num, max_x, max_y, x = x / image.shape[1], y= y/image.shape[0], x2=w/image.shape[1], y2=h/image.shape[0])
+                        text = extract_text_with_position(fname, num, max_x, max_y, x / image.shape[1], y/image.shape[0], w/image.shape[1], h/image.shape[0], None, None)
                         returned[mp_num] = text
                     else: crops.append((fname, num, max_x, max_y, x / image.shape[1], y/image.shape[0], w/image.shape[1], h/image.shape[0]))
                     
                 if mp_ocr:
-                    process = [mp.Process(target = mp_extract, args=(crops, i, mp_ocr, returned)) for i in range(mp_ocr)] # TODO: fix it this aint doing shit
+                    process = [mp.Process(target = mp_extract, args=((crops, i, mp_ocr, returned))) for i in range(mp_ocr)] # TODO: fix it this aint doing shit
                     [p.start() for p in process]
                     [p.join() for p in process]
 
