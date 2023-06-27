@@ -207,10 +207,10 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, ocr_device
                         returned[mp_num] = text
                     else: crops.append((fname, num, max_x, max_y, x / image.shape[1], y/image.shape[0], w/image.shape[1], h/image.shape[0]))
                     
-                    if mp_ocr:
-                        process = [mp.Process(target = mp_extract, args=(crops, i, mp_ocr, returned)) for i in range(mp_ocr)] # TODO: fix it this aint doing shit
-                        [p.start() for p in process]
-                        [p.join() for p in process]
+                if mp_ocr:
+                    process = [mp.Process(target = mp_extract, args=(crops, i, mp_ocr, returned)) for i in range(mp_ocr)] # TODO: fix it this aint doing shit
+                    [p.start() for p in process]
+                    [p.join() for p in process]
 
 
                 for mp_num, element in enumerate(returned):
