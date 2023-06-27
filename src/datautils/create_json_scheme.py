@@ -132,7 +132,7 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 1
 
             fname = os.path.join(root, file)
             images = np.load(fname.replace('images', 'numpy').replace('.pdf', '.npz'))
-            images = {int(x): images[x] for x in images}
+            images = [images[x] for x in images]
             manager = mp.Manager()
             json_gt = {
                     "file": file, 
