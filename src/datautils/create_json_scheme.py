@@ -38,9 +38,6 @@ def preprocess(image):
     _,image = cv2.threshold(image,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     return image 
 
-def ocr_img(img):
-    return tesserocr.image_to_text(Image.fromarray(img), lang = 'spa')
-
 def post_process(text):
     spplited = re.sub(r'[^\w\s]|_', ' ', text).split()
     newtext = []
@@ -133,6 +130,16 @@ def mp_extract(list_of_args, thread_num, num_threads, returned):
     for idx in range(thread_num, len(list_of_args), num_threads): extract_text_with_position(*list_of_args[idx], returned, idx)
     return True
 
+def mp_extract_tesseract(crops, thread_num, num_threads, returned):
+    for idx in range(thread_num, len(crops), num_threads): ocr_img(crops[idx], returned, idx)
+    return True
+
+def ocr_img(img, list_returned = None, idx = None):
+    text =  tesserocr.image_to_text(Image.fromarray(img), lang = 'spa')
+    if list_returned is not None:
+        list_returned[idx] = text
+
+    return text
 
 def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, ocr_device = 'cuda', margin = 10, file_extensions = ['.pdf',]):
     
@@ -140,7 +147,6 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, ocr_device
 
     out = out_base
     os.makedirs(out, exist_ok=True)
-    if ocr: reader = easyocr.Reader(['es'], gpu = ocr_device)
 
     for root, _, files in os.walk(folder):
         for file in tqdm(files, desc=f"Processing {folder}..."):
@@ -188,26 +194,27 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, ocr_device
                     )
                     x,y,w,h = [int(x) for x in item.coordinates]
                     crop = image[y:max(h-1,0), x:max(w-1, 0)]
-                    if ocr: 
-                        text = reader.readtext(crop)
-                        print(text)
-                        returned[mp_num] = text
-                        continue
 
-                    else:
+                    if not ocr:
                         x, y = x-margin, y - margin  
                         w,h = w+margin, h+margin
                         if not mp_ocr:
                             # text =   tesserocr.image_to_text(crop, lang = 'spa')  #OCR.readtext(crop)
                             text = extract_text_with_position(fname, num, max_x, max_y, x = x / image.shape[1], y= y/image.shape[0], x2=w/image.shape[1], y2=h/image.shape[0])
-                            
                             returned[mp_num] = text
-                        else: crops.append((fname, num, max_x, max_y, x / image.shape[1], y/image.shape[0], w/image.shape[1], h/image.shape[0])) 
+                        else: crops.append((fname, num, max_x, max_y, x / image.shape[1], y/image.shape[0], w/image.shape[1], h/image.shape[0]))
+                    else: crops.append(crop)
                     
-                    if mp_ocr and not ocr:
-                        process = [mp.Process(target = mp_extract, args=(crops, i, mp_ocr, returned)) for i in range(mp_ocr)] # TODO: fix it this aint doing shit
-                        [p.start() for p in process]
-                        [p.join() for p in process]
+                    if mp_ocr:
+                        if not ocr:
+                            process = [mp.Process(target = mp_extract, args=(crops, i, mp_ocr, returned)) for i in range(mp_ocr)] # TODO: fix it this aint doing shit
+                            [p.start() for p in process]
+                            [p.join() for p in process]
+                        
+                        else:
+                            process = [mp.Process(target = mp_extract_tesseract, args=(crops, i, mp_ocr, returned)) for i in range(mp_ocr)] # TODO: fix it this aint doing shit
+                            [p.start() for p in process]
+                            [p.join() for p in process]
 
                 for mp_num, element in enumerate(returned):
                     if element is not None: json_gt["pages"][num][mp_num]['ocr'] = element

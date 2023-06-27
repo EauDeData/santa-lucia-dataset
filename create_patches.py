@@ -42,7 +42,7 @@ if __name__ == '__main__':
     print(f"Using {subset} subset")
 
     # folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, ocr_device = 'cuda', margin = 10, file_extensions = ['.pdf',]
-    folders = [(os.path.join(args.where_data, f), args.outdir.format(f), LPMODEL, args.mp_ocr, args.ocr, args.ocr_device) for f in subset["subfolders"]]
+    folders = [(os.path.join(args.where_data, f), args.outdir.format(f), LPMODEL, args.mp_ocr, args.ocr, args.device_ocr) for f in subset["subfolders"]]
 
     if args.threads:
         with mp.Pool(args.threads) as p: p.starmap(process_folder, folders)
