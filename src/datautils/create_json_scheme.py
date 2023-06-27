@@ -137,7 +137,9 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 1
             if os.path.exists(outname): continue
 
             fname = os.path.join(root, file)
-            images = np.load(fname.replace('images', 'numpy').replace('.pdf', '.npz'))
+            try:
+                images = np.load(fname.replace('images', 'numpy').replace('.pdf', '.npz'))
+            except FileNotFoundError: images = read_img(fname)
             images = [images[x] for x in images]
             manager = mp.Manager()
             json_gt = {
