@@ -36,7 +36,7 @@ def preprocess(image):
     image = cv2.equalizeHist(image)
     image = cv2.GaussianBlur(image, (5, 5), 1)
     _,image = cv2.threshold(image,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-    return image
+    return image 
 
 def ocr_img(img):
     return tesserocr.image_to_text(Image.fromarray(img), lang = 'spa')
@@ -171,7 +171,7 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, ocr_device
                 if mp_ocr: 
                     m = Manager()
                     returned = m.list(returned)
-                image = preprocess(image)
+
                 _, _, max_x, max_y = pdfhandler[num].mediabox
                 
                 if mp_ocr:
