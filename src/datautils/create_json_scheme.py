@@ -127,7 +127,6 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 1
 
     out = out_base
     os.makedirs(out, exist_ok=True)
-    manager = Manager()
 
     for root, _, files in os.walk(folder):
         for file in tqdm(files, desc=f"Processing {folder}..."):
@@ -141,7 +140,6 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 1
                 images = np.load(fname.replace('images', 'numpy').replace('.pdf', '.npz'))
             except FileNotFoundError: images = read_img(fname)
             images = [images[x] for x in images]
-            manager = mp.Manager()
             json_gt = {
                     "file": file, 
                     "path": fname,
@@ -155,7 +153,7 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 1
                 with torch.no_grad():
                     detection = lp_detect(image, LPMODEL)
 
-                returned = manager.list([None] * len(detection)) if mp_ocr else [None] * len(detection)
+                returned = [None] * len(detection)
                 image = preprocess(image)
                 _, _, max_x, max_y = pdfhandler[num].mediabox
                 
@@ -177,10 +175,10 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 1
                         text = extract_text_with_position(fname, num, max_x, max_y, x = x / image.shape[1], y= y/image.shape[0], x2=w/image.shape[1], y2=h/image.shape[0])
                         
                         returned[num] = text
-                    else: crops.append((fname, num, max_x, max_y, x / image.shape[1], y/image.shape[0], w/image.shape[1], h/image.shape[0]))
+                    else: crops.append((fname, num, max_x, max_y, x / image.shape[1], y/image.shape[0], w/image.shape[1], h/image.shape[0])) 
                 
                 if mp_ocr:
-                    process = [mp.Process(target = mp_extract, args=(crops, i, mp_ocr)) for i in range(mp_ocr)]
+                    process = [mp.Process(target = mp_extract, args=(crops, i, mp_ocr)) for i in range(mp_ocr)] # TODO: fix it this aint doing shit
                     [p.start() for p in process]
                     [p.join() for p in process]
 
