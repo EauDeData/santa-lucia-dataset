@@ -16,6 +16,7 @@ from multiprocessing import Manager
 import numpy as np
 import torch
 import multiprocessing as mp
+import easyocr
 
 from src.process.segmentation import lp_detect, MODELS
 from src.datautils.dataloader import read_img
@@ -29,9 +30,12 @@ def load_vocab():
 VOCAB = load_vocab()
 
 def preprocess(image):
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    if len(image.shape) == 3:
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     image = cv2.equalizeHist(image)
     image = cv2.GaussianBlur(image, (5, 5), 1)
+    _,image = cv2.threshold(image,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     return image
 
 def ocr_img(img):
@@ -55,12 +59,17 @@ def post_process(text):
             newtext.append(word)
     return " ".join(newtext)
 
-def extract_text_with_position(page_layout, page, max_x, max_y, x, y, x2, y2):
+def extract_text_with_position(page_layout, page, max_x, max_y, x, y, x2, y2, returned = None, idx = None):
     text = ""
 
     for element in list(extract_pages(page_layout))[page]:
         if isinstance(element, pdfminer.layout.LTTextBoxHorizontal):
             for text_line in element:
+                x_pixels, y_pixels, _, _ = text_line.bbox
+                arr_pixel_x = (x_pixels /  max_x) 
+                arr_pixel_y = 1- (y_pixels / max_y)
+
+                if (arr_pixel_x > x2 or arr_pixel_y > y2): continue
                 for character in text_line:
                     if isinstance(character, pdfminer.layout.LTChar):
                         x_pixels, y_pixels, _, _ = character.bbox
@@ -71,7 +80,11 @@ def extract_text_with_position(page_layout, page, max_x, max_y, x, y, x2, y2):
                         if x <= (arr_pixel_x) <= x2 and y <= (arr_pixel_y) <= y2:
                             char = character.get_text()
                             text += char
-    return post_process(text)
+    t = post_process(text)
+    if returned is not None:
+        returned[idx] = t
+    
+    return t
 
 def save_file(fname):
     try:
@@ -116,17 +129,18 @@ def just_save_numpy(folder, mp_general = 6):
 def paralel_extract_wrapper(args):
     return extract_text_with_position(*args)
 
-def mp_extract(list_of_args, thread_num, num_threads):
-    for idx in range(thread_num, len(list_of_args), num_threads): extract_text_with_position(*list_of_args[idx])
+def mp_extract(list_of_args, thread_num, num_threads, returned):
+    for idx in range(thread_num, len(list_of_args), num_threads): extract_text_with_position(*list_of_args[idx], returned, idx)
     return True
 
 
-def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 10, file_extensions = ['.pdf',]):
+def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, ocr_device = 'cuda', margin = 10, file_extensions = ['.pdf',]):
     
     print(f"Function triggered with origin {folder} and destination {out_base}")
 
     out = out_base
     os.makedirs(out, exist_ok=True)
+    if ocr: reader = easyocr.Reader(['es'], gpu = ocr_device)
 
     for root, _, files in os.walk(folder):
         for file in tqdm(files, desc=f"Processing {folder}..."):
@@ -154,11 +168,17 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 1
                     detection = lp_detect(image, LPMODEL)
 
                 returned = [None] * len(detection)
+                if mp_ocr: 
+                    m = Manager()
+                    returned = m.list(returned)
                 image = preprocess(image)
                 _, _, max_x, max_y = pdfhandler[num].mediabox
                 
                 if mp_ocr:
                     crops = []
+                
+                if ocr:
+                    image = preprocess(image)
 
                 for mp_num, item in enumerate(detection):
                     
@@ -168,19 +188,26 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 1
                     )
                     x,y,w,h = [int(x) for x in item.coordinates]
                     crop = image[y:max(h-1,0), x:max(w-1, 0)]
-                    x, y = x-margin, y - margin  
-                    w,h = w+margin, h+margin
-                    if not mp_ocr:
-                        # text =   tesserocr.image_to_text(crop, lang = 'spa')  #OCR.readtext(crop)
-                        text = extract_text_with_position(fname, num, max_x, max_y, x = x / image.shape[1], y= y/image.shape[0], x2=w/image.shape[1], y2=h/image.shape[0])
-                        
-                        returned[num] = text
-                    else: crops.append((fname, num, max_x, max_y, x / image.shape[1], y/image.shape[0], w/image.shape[1], h/image.shape[0])) 
-                
-                if mp_ocr:
-                    process = [mp.Process(target = mp_extract, args=(crops, i, mp_ocr)) for i in range(mp_ocr)] # TODO: fix it this aint doing shit
-                    [p.start() for p in process]
-                    [p.join() for p in process]
+                    if ocr: 
+                        text = reader.readtext(crop)
+                        print(text)
+                        returned[mp_num] = text
+                        continue
+
+                    else:
+                        x, y = x-margin, y - margin  
+                        w,h = w+margin, h+margin
+                        if not mp_ocr:
+                            # text =   tesserocr.image_to_text(crop, lang = 'spa')  #OCR.readtext(crop)
+                            text = extract_text_with_position(fname, num, max_x, max_y, x = x / image.shape[1], y= y/image.shape[0], x2=w/image.shape[1], y2=h/image.shape[0])
+                            
+                            returned[mp_num] = text
+                        else: crops.append((fname, num, max_x, max_y, x / image.shape[1], y/image.shape[0], w/image.shape[1], h/image.shape[0])) 
+                    
+                    if mp_ocr and not ocr:
+                        process = [mp.Process(target = mp_extract, args=(crops, i, mp_ocr, returned)) for i in range(mp_ocr)] # TODO: fix it this aint doing shit
+                        [p.start() for p in process]
+                        [p.join() for p in process]
 
                 for mp_num, element in enumerate(returned):
                     if element is not None: json_gt["pages"][num][mp_num]['ocr'] = element

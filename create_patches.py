@@ -26,6 +26,8 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--threads', default=2, type=int)
     parser.add_argument('-dd', '--device_detection', default='cuda:1', type=str)
     parser.add_argument('-do', '--mp_ocr', default=0, type=int)
+    parser.add_argument('-ocr', '--ocr', default=False, type=bool)
+    parser.add_argument('-docr', '--device_ocr', default='cuda:0', type=str)
 
 
     args = parser.parse_args()
@@ -41,8 +43,7 @@ if __name__ == '__main__':
 
 
     folders = [(os.path.join(args.where_data, f), args.outdir.format(f), LPMODEL, args.mp_ocr) for f in subset["subfolders"]]
-    def _get_folder_args(idx, folders = folders): 
-        return process_folder(*folders[idx])
+
     if args.threads:
         with mp.Pool(args.threads) as p: p.starmap(process_folder, folders)
 
