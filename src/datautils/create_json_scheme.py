@@ -14,6 +14,7 @@ from pypdf import PdfReader
 import re
 from multiprocessing import Manager
 import numpy as np
+import torch
 import multiprocessing as mp
 
 from src.process.segmentation import lp_detect, MODELS
@@ -149,7 +150,8 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 1
             for num, image in enumerate(images):
 
                 json_gt["pages"][num] = []
-                detection = lp_detect(image, LPMODEL)
+                with torch.no_grad():
+                    detection = lp_detect(image, LPMODEL)
 
                 returned = manager.list([None] * len(detection)) if mp_ocr else [None] * len(detection)
                 image = preprocess(image)
@@ -178,7 +180,7 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 1
                 if mp_ocr:
                     process = [mp.Process(target = mp_extract, args=(crops, i, mp_ocr)) for i in range(mp_ocr)]
                     [p.start() for p in process]
-                    [p.join() for p in process()]
+                    [p.join() for p in process]
 
                 for mp_num, element in enumerate(returned):
                     if element is not None: json_gt["pages"][num][mp_num]['ocr'] = element
