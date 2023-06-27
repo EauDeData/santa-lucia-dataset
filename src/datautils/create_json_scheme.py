@@ -115,6 +115,11 @@ def just_save_numpy(folder, mp_general = 6):
 def paralel_extract_wrapper(args):
     return extract_text_with_position(*args)
 
+def mp_extract(list_of_args, thread_num, num_threads):
+    for idx in range(thread_num, len(list_of_args), num_threads): extract_text_with_position(*list_of_args[idx])
+    return True
+
+
 def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 10, file_extensions = ['.pdf',]):
     
     print(f"Function triggered with origin {folder} and destination {out_base}")
@@ -168,14 +173,12 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, margin = 1
                         text = extract_text_with_position(fname, num, max_x, max_y, x = x / image.shape[1], y= y/image.shape[0], x2=w/image.shape[1], y2=h/image.shape[0])
                         
                         returned[num] = text
-                    else: crops.append([fname, num, max_x, max_y, x / image.shape[1], y/image.shape[0], w/image.shape[1], h/image.shape[0]])
+                    else: crops.append((fname, num, max_x, max_y, x / image.shape[1], y/image.shape[0], w/image.shape[1], h/image.shape[0]))
                 
                 if mp_ocr:
-                    with ProcessPoolExecutor(max_workers=mp_ocr) as executor:
-                        tasks = {executor.submit(paralel_extract_wrapper, img): n for n, img in enumerate(crops)}
-                        for future in concurrent.futures.as_completed(tasks):
-                            crop_number = tasks[future]
-                            returned[crop_number] = future.result()
+                    process = [mp.Process(target = mp_extract, args=(crops, i, mp_ocr)) for i in range(mp_ocr)]
+                    [p.start() for p in process]
+                    [p.join() for p in process()]
 
                 for mp_num, element in enumerate(returned):
                     if element is not None: json_gt["pages"][num][mp_num]['ocr'] = element
