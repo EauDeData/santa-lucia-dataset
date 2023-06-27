@@ -180,12 +180,8 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, ocr_device
 
                 _, _, max_x, max_y = pdfhandler[num].mediabox
                 
-                if mp_ocr:
-                    crops = []
+                if mp_ocr: crops = []
                 
-                if ocr:
-                    image = preprocess(image)
-
                 for mp_num, item in enumerate(detection):
                     
 
@@ -193,28 +189,20 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, ocr_device
                         {"type": item.type, "bbox": [int(x) for x in item.coordinates], 'conf': item.score}
                     )
                     x,y,w,h = [int(x) for x in item.coordinates]
-                    crop = image[y:max(h-1,0), x:max(w-1, 0)]
 
-                    if not ocr:
-                        x, y = x-margin, y - margin  
-                        w,h = w+margin, h+margin
-                        if not mp_ocr:
-                            # text =   tesserocr.image_to_text(crop, lang = 'spa')  #OCR.readtext(crop)
-                            text = extract_text_with_position(fname, num, max_x, max_y, x = x / image.shape[1], y= y/image.shape[0], x2=w/image.shape[1], y2=h/image.shape[0])
-                            returned[mp_num] = text
-                        else: crops.append((fname, num, max_x, max_y, x / image.shape[1], y/image.shape[0], w/image.shape[1], h/image.shape[0]))
-                    else: crops.append(crop)
+                    x, y = x-margin, y - margin  
+                    w,h = w+margin, h+margin
+                    if not mp_ocr:
+                        # text =   tesserocr.image_to_text(crop, lang = 'spa')  #OCR.readtext(crop)
+                        text = extract_text_with_position(fname, num, max_x, max_y, x = x / image.shape[1], y= y/image.shape[0], x2=w/image.shape[1], y2=h/image.shape[0])
+                        returned[mp_num] = text
+                    else: crops.append((fname, num, max_x, max_y, x / image.shape[1], y/image.shape[0], w/image.shape[1], h/image.shape[0]))
                     
                     if mp_ocr:
-                        if not ocr:
-                            process = [mp.Process(target = mp_extract, args=(crops, i, mp_ocr, returned)) for i in range(mp_ocr)] # TODO: fix it this aint doing shit
-                            [p.start() for p in process]
-                            [p.join() for p in process]
-                        
-                        else:
-                            process = [mp.Process(target = mp_extract_tesseract, args=(crops, i, mp_ocr, returned)) for i in range(mp_ocr)] # TODO: fix it this aint doing shit
-                            [p.start() for p in process]
-                            [p.join() for p in process]
+                        process = [mp.Process(target = mp_extract, args=(crops, i, mp_ocr, returned)) for i in range(mp_ocr)] # TODO: fix it this aint doing shit
+                        [p.start() for p in process]
+                        [p.join() for p in process]
+
 
                 for mp_num, element in enumerate(returned):
                     if element is not None: json_gt["pages"][num][mp_num]['ocr'] = element
