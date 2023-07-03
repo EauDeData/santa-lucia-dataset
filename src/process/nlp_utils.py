@@ -43,7 +43,7 @@ class StringCleanAndTrim:
         return lemma    
 
 spanish = 'distiluse-base-multilingual-cased-v1'
-TAGGER = SequenceTagger.load("flair/ner-spanish-large")
+# TAGGER = SequenceTagger.load("flair/ner-spanish-large")
 
 ## Get Distance 2 Sentences ###
 def sentence_proximity(query, sentences, model):
@@ -51,10 +51,9 @@ def sentence_proximity(query, sentences, model):
     sentence_embeddings = model.encode([query] + sentences)
     sims = []
     for emb in sentence_embeddings[1:]:
-        sims.append(util.cos_sim(sentence_embeddings[0], emb))
+        sims.append(util.cos_sim(sentence_embeddings[0], emb).squeeze().item())
     
     return sims
-
 
 ## clean sentence ###
 def clean_sentence(s1, cleaner):
@@ -73,9 +72,6 @@ def ner_detection(s1, tagger):
         splitted.extend(zip(words, cat))
 
     return splitted
-        
-        
-
 
 def edit_distance(w1, w2):
     return distance(w1, w2)

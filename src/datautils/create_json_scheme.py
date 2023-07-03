@@ -224,6 +224,8 @@ def process_folder(folder, out_base, LPMODEL, mp_ocr = 0, ocr = True, ocr_device
                 for mp_num, element in enumerate(returned):
                     if element is not None: json_gt["pages"][num][mp_num]['ocr'] = element
             
+
+
             json.dump(dict(json_gt), open(outname, 'w')) # TODO: Ensure it arrives here on join            
     del LPMODEL
 
