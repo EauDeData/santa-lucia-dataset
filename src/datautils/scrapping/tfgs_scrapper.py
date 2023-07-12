@@ -70,4 +70,58 @@ class DDDScrapper(GenericScrapper):
         while url:
             url = self.process_page(url)
 
-DDDScrapper().crawl()
+class PartituresScrapper(GenericScrapper):
+    initial_urls = 'http://bdh.bne.es/bnesearch/Search.do?fechaFdesde=&showYearItems=&advanced=&exact=&textH=&completeText=&text=&sort=&languageView=es&fechaFhasta=&tipomaterial1=M%c3%basica+impresa&tipomaterial1=M%c3%basica+manuscrita&pageNumber=1&pageSize=30&language='
+    def __init__(self, output_folder: str = './tmp/ddd/') -> None:
+        self.out = output_folder
+
+        os.makedirs(output_folder, exist_ok = True)
+
+    def get_documents_in_soup(self, soup):
+        return self.get_from_soup(soup, target = 'entrada', target_type='class_')
+        
+
+    def get_data_in_document_from_url(self, url):
+        soup = self.get_soup(url)
+        content =  self.get_from_soup(soup, target = 'entrada')
+        pdfurl = self.get_from_soup(soup, target = 'identificador')[0]['href']
+        print(pdfurl)
+
+        return content, pdfurl
+
+    def get_next_page(self, soup):
+        next = self.get_from_soup(soup, 'sig', target_type='class_', find_all=False)
+        if next is not None: next = 'http://bdh.bne.es' + next['href']
+        return next
+    
+    def download_pages(self, url):
+        soup = self.get_soup(url)
+        return self.get_from_soup(soup, target = 'viewer-page-iframe')['src']
+
+    def process_document(self, href):
+        content, pdfurl = self.get_data_in_document_from_url(href)
+        uid=str(uuid.uuid4())
+        formated = f"{content}\n <a href='{pdfurl}'> pdf_url </a>"
+        with open(os.path.join(self.out, f"{uid}.html"), 'w') as handler: handler.write(formated)
+        
+
+    def process_page(self, url, mp_thr = 0):
+
+        sopa = self.get_soup(url)
+        next = self.get_next_page(sopa)
+        documents = ['http://bdh.bne.es' + self.get_from_soup(d, target='LabelBlueBold', target_type='class_')[0]['href'] for d in self.get_documents_in_soup(sopa)]
+        if mp_thr: raise NotImplementedError
+        else: 
+            for document in documents:
+                print(document)
+                self.process_document(document)
+
+        return next
+
+
+    def crawl(self):
+
+        url = self.initial_urls
+        while url:
+            url = self.process_page(url)
+PartituresScrapper().crawl()
