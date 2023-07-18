@@ -9,8 +9,10 @@ from bs4 import BeautifulSoup
 import re
 import numpy as np
 from tqdm import tqdm
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-from src.process.nlp_utils import StringCleanAndTrim, sentence_proximity, SentenceTransformer, spanish
+from src.process.nlp_utils import StringCleanAndTrim, sentence_proximity, SentenceTransformer, spanish, SequenceTagger, ner_detection
 
 if __name__ == '__main__':
 
@@ -24,19 +26,25 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--threads', default=2, type=int)
     parser.add_argument('-o', '--overwrite', default=False, type=bool)
     parser.add_argument('-d', '--device', default="cuda")
-    parser.add_argument('-k', '--top_k_similar', default=0.2, type=float)
+    parser.add_argument('-k', '--top_k_similar', default=0.4, type=float)
 
     args = parser.parse_args()
     st = SentenceTransformer(spanish).to(args.device)
-
+    tagger = SequenceTagger.load("flair/ner-spanish-large")
+    max_sims = []
     for root, _, files in os.walk(args.where_json):
         if 'jsons' in root:
             os.makedirs(root.replace('jsons', 'jsons_gt'), exist_ok=True)
         print(root, '\n')
-        for file in tqdm(files):
+        for n, file in enumerate(files):
+            print('File number', n, '\t', end = '\r')
             if not (os.path.splitext(file)[1].lower() in ['.json']): continue
             filename = os.path.join(root, file)
+            filename_out = filename if args.overwrite else filename.replace('.json', '_gt.json')
+            if 'jsons' in root and not args.overwrite: filename_out = filename_out.replace('/jsons', '/jsons_gt')
+            if os.path.exists(filename_out): continue
             data = json.load(open(filename))
+
             if 'topic_gt' in data: continue # already done
 
             html_path = data['path'].replace('.pdf', '.html').replace('/data2fast/users/amolina/BOE/', args.where_data).replace('images', 'htmls')
@@ -65,22 +73,26 @@ if __name__ == '__main__':
             route_to_gt = []
             for page in data['pages']:
                 for num, item in enumerate(data['pages'][page]):
+                    if not 'ocr' in item: continue
                     if len(item['ocr']) >= len(query):
                         sentences.append(item['ocr'])
                         route_to_gt.append({
                             'page': page,
                             'idx_segment': num
                         })
-
+            if not len(sentences): continue
             sims = sentence_proximity(query, sentences, st)
-
-            if max(sims) >= args.top_k_similar:
-                data['topic_gt'] = route_to_gt[np.argmax(sims)]
-                data['ocr_gt'] = sentences[np.argmax(sims)]
-                filename_out = filename if args.overwrite else filename.replace('.json', '_gt.json')
-                if 'jsons' in root and args.overwrite: filename_out = filename_out.replace('/jsons', '/jsons_gt')
-                json.dump(data, open(filename_out, 'w'))
+            max_sims.append(max(sims))
+            # if max(sims) >= args.top_k_similar:
+            data['topic_gt'] = route_to_gt[np.argmax(sims)]
+            data['ocr_gt'] = sentences[np.argmax(sims)]
+            data['score'] = max(sims)
+            data['NEs'] = ner_detection(data['ocr_gt'], tagger) + ner_detection(query, tagger)
+            json.dump(data, open(filename_out, 'w'))
             
+sns.histplot(max_sims, bins = [i / 100 for i in range(101)])
+plt.savefig('tmp.png')
+        
 
             
         
