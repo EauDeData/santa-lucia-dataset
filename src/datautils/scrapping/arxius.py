@@ -9,18 +9,29 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
-
-
+webdriver.firefox.marionette=False
 # El rows = 1000 travieso és per aprofitar el bug
 BASE_ARXIU = 'https://arxiusenlinia.cultura.gencat.cat'
 QUERY_GLOBAL = BASE_ARXIU +'/#/cercaavancada/llistatCercaAvanc'
 
-DRIVERPATH = 'geckodriver'
+option = webdriver.ChromeOptions()
+option.add_experimental_option("excludeSwitches", ["enable-automation"])
+option.add_experimental_option('useAutomationExtension', False)
+
+#For ChromeDriver version 79.0.3945.16 or over
+option.add_argument('--disable-blink-features=AutomationControlled')
+
+option.add_argument("window-size=1280,800")
+option.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36")
+
+DRIVERPATH = 'geckodriver' 
 OUPATH = 'arxiu/'
-DRIVER = webdriver.Firefox()
+DRIVER = webdriver.Chrome(options=option)
 DRIVER.get(QUERY_GLOBAL)
 
+DRIVER.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
 input("Press enter to proceed... ") # Cal inserir la cerca manualment perque funciona desde front-end; tirem de selenium
 CSV = open('imatges.tsv', 'w')
