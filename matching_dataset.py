@@ -33,15 +33,16 @@ if __name__ == '__main__':
     tagger = SequenceTagger.load("flair/ner-spanish-large")
     max_sims = []
     for root, _, files in os.walk(args.where_json):
-        if 'jsons' in root:
-            os.makedirs(root.replace('jsons', 'jsons_gt'), exist_ok=True)
+        if '_gt' in root: continue
+        if 'jsons' in root and not 'gt' in root:
+            os.makedirs(root.replace('jsons', 'jsons_gt_bis'), exist_ok=True)
         print(root, '\n')
         for n, file in enumerate(files):
             print('File number', n, '\t', end = '\r')
             if not (os.path.splitext(file)[1].lower() in ['.json']): continue
             filename = os.path.join(root, file)
             filename_out = filename if args.overwrite else filename.replace('.json', '_gt.json')
-            if 'jsons' in root and not args.overwrite: filename_out = filename_out.replace('/jsons', '/jsons_gt')
+            if 'jsons' in root and not args.overwrite: filename_out = filename_out.replace('/jsons', '/jsons_gt_bis')
             if os.path.exists(filename_out): continue
             data = json.load(open(filename))
 
@@ -71,6 +72,7 @@ if __name__ == '__main__':
             
             sentences = []
             route_to_gt = []
+            sims = []
             for page in data['pages']:
                 for num, item in enumerate(data['pages'][page]):
                     if not 'ocr' in item: continue
@@ -80,8 +82,12 @@ if __name__ == '__main__':
                             'page': page,
                             'idx_segment': num
                         })
+                        similarity = sentence_proximity(query, [item['ocr']], st)
+                        sims.extend(similarity)
+                        
+                        data['pages'][page][num]['similarity'] = similarity[0]
             if not len(sentences): continue
-            sims = sentence_proximity(query, sentences, st)
+           
             max_sims.append(max(sims))
             # if max(sims) >= args.top_k_similar:
             data['topic_gt'] = route_to_gt[np.argmax(sims)]
